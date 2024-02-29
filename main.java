@@ -1,26 +1,28 @@
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.util.Date;
 import java.util.Random;
 
 public class main {
     private static Random random = new Random();
 
     public static void main(String[] args) throws IOException {
-        TestDTO dto = new TestDTO();
-        createDataDto(dto);
+        TestDTO dto = (TestDTO) createDataDto(new TestDTO());
         System.out.println(dto);
     }
 
-    public static void createDataDto(TestDTO testDTO) {
-        for (Field field : testDTO.getClass().getDeclaredFields()) {
-            field.setAccessible(true);
+    public static Object createDataDto(Object dto) {
+        for (Field field : dto.getClass().getDeclaredFields()) {
             try {
+                field.setAccessible(true);
                 var fieldType = field.getType();
-                field.set(testDTO, checkType(fieldType));
+                field.set(dto, checkType(fieldType));
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+        return dto;
     }
 
     private static Object checkType(Class<?> type) {
@@ -40,6 +42,8 @@ public class main {
             return returnObj();
         } else if (type.equals(Long.class)) {
             return randomLong();
+        } else if (type.equals(Date.class)) {
+            return randomDate();
         }
         return null;
     }
@@ -80,5 +84,9 @@ public class main {
 
     private static Object randomLong() {
         return random.nextLong();
+    }
+
+    private static Object randomDate() {
+        return new Date();
     }
 }
